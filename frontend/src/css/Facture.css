@@ -1,0 +1,66 @@
+.facture-container {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .facture-title {
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  
+  .document {
+    border: 1px solid #ccc;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+  }
+  
+  .section {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  
+  .content-section {
+    margin-bottom: 5px;
+  }
+  
+  .table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .table th, .table td{
+    border: 1px solid black;
+    padding-top: 8px;
+    padding-left: 8px;
+    padding-bottom: 8px;
+    padding-right: 8px;
+    text-align: left;
+  }
+  .table th {
+    background-color: #f2f2f2;
+  }
+  .border-thick{
+    border-bottom: 2px solid #000;
+  }
+  .border-spec td{
+    border: none;
+  }
+  .border-spec1 td{
+    border: none;
+    padding-top: 16px;
+  }
+  .bottom-border{
+    border-bottom: 1px solid #000 !important;
+  }
+  .label-spec{
+    font-weight: bold;
+  }
+  .highlight {
+    background-color: #eee;
+  }
+  
