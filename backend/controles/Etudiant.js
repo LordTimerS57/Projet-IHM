@@ -27,12 +27,21 @@ routeEtudiant.post("/ajouterEtudiant", async(req, res) => {
         });
     } catch (error) {
         console.error("Erreur SQL :", error);
-        
-        // Envoi de la réponse d'erreur, et utilisation du return pour éviter un envoi supplémentaire
+        console.log("Code d'erreur PostgreSQL :", error.code);
+
+        if (error.code === '23505') {
+            return res.status(409).json({
+                Success: false,
+                error: "Le matricule est déjà utilisé."
+            });
+        } else {
+            // Envoi de la réponse d'erreur, et utilisation du return pour éviter un envoi supplémentaire
         return res.status(500).json({ 
             Success: false,
             error: "Erreur à l'ajout d'un étudiant" 
         });
+        }
+        
     }
 });
 

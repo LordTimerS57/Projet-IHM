@@ -90,6 +90,9 @@ function ModifyButton({ numPaie, montant, mois_paye, date_paiement, matricule, n
 // Bouton supprimer un paiement
 function DeleteButton({ numPaie, matricule, numBloc, numChambre, refreshPaiement }) {
   const handleSubmit = async () => {
+    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer le paiement avec le numéro de paiement ${numPaie} ?`);
+        if (!confirmDelete) return;
+
     try {
       // Raha hanao anle voulez vous ... dia atao eto
 

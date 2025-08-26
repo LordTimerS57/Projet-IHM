@@ -102,24 +102,61 @@ function AddModalBloc({ onClose, onSuccess, numBloc }) {
         backgroundColor: 'white', padding: '20px', borderRadius: '8px',
         minWidth: '400px'
       }}>
-        <h2>Ajouter un bloc</h2>
+       <h2>Ajouter un bloc</h2>
         <form onSubmit={handleSubmit}>
           <label>
             Nom du bloc :
-            <input type="text" value={nomBloc} onChange={(e) => setNomBloc(e.target.value)} required />
+            <input
+              type="text"
+              value={nomBloc}
+              onChange={(e) => {
+                // Autorise lettres (avec accents), chiffres, espaces et apostrophes
+                const onlyValidChars =  e.target.value.replace(/[^\p{L}0-9 '-]/gu, "");
+                setNomBloc(onlyValidChars);
+              }}
+              required
+            />
           </label><br /><br />
+
           <label>
             Nombre de chambres :
-            <input type="number" min="1" max="99" value={nbChambres} onChange={(e) => setNbChambres(e.target.value)} required />
+            <input
+              type="text"
+              value={nbChambres}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                setNbChambres(onlyDigits);
+              }}
+              required
+            />
           </label><br /><br />
+
           <label>
             Nombre de places par chambre :
-            <input type="number" min="1" value={nbPlaces} onChange={(e) => setNbPlaces(e.target.value)} required />
+            <input
+              type="text"
+              value={nbPlaces}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                setNbPlaces(onlyDigits);
+              }}
+              required
+            />
           </label><br /><br />
+
           <label>
             Loyer par chambre :
-            <input type="text" value={loyer} onChange={(e) => setLoyer(e.target.value)} required />
+            <input
+              type="text"
+              value={loyer}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                setLoyer(onlyDigits);
+              }}
+              required
+            />
           </label><br /><br />
+
           <button type="submit">Ajouter</button>
           <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
         </form>
@@ -313,11 +350,29 @@ function AddModalChambre({ onClose, onSuccess, chambres, numChambre}) {
           </label><br /><br />
           <label>
             Nombre de places par chambre :
-            <input type="number" value={nbPlacesParDefaut} max="99" onChange={(e) => setNbPlaces(e.target.value)} required />
+            <input 
+              type="text" 
+              value={nbPlacesParDefaut} 
+              maxLength="2" 
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); // supprime tout sauf chiffres
+                setNbPlaces(onlyDigits);
+              }} 
+              required 
+            />
           </label><br /><br />
+
           <label>
             Loyer par chambre :
-            <input type="text" value={loyerParDefaut} onChange={(e) => setLoyer(e.target.value)} required />
+            <input 
+              type="text" 
+              value={loyerParDefaut} 
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); // supprime tout sauf chiffres
+                setLoyer(onlyDigits);
+              }} 
+              required 
+            />
           </label><br /><br />
           <button type="submit" disabled={loading}>{loading ? 'Chargement...' : 'Ajouter'}</button>
           <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
@@ -355,11 +410,28 @@ function ModifyChambreModal({ chambre, onClose, onSave }) {
         <h2>Modifier Chambre {num_chambre}</h2>
         <label>
           Loyer :
-          <input type="text" value={loyer} onChange={(e) => setLoyer(e.target.value)} />
+          <input 
+            type="text" 
+            value={loyer} 
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, ""); // garder seulement les chiffres
+              setLoyer(onlyDigits);
+            }} 
+            required
+          />
         </label><br />
+
         <label>
           Places :
-          <input type="number" min="0" value={places} onChange={(e) => setPlaces(e.target.value)} />
+          <input 
+            type="text" 
+            value={places} 
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, ""); // garder seulement les chiffres
+              setPlaces(onlyDigits);
+            }} 
+            required
+          />
         </label><br />
         <button onClick={handleSave}>Enregistrer</button>
         <button onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
@@ -371,7 +443,8 @@ function ModifyChambreModal({ chambre, onClose, onSave }) {
 // Bouton supprimer chambre
 function DeleteButtonChambre({ numBloc, numChambre, refreshChambre }){
   const handleSubmit = async () => {
-      // raha hanao anle voulez vous ... dia atao eto
+    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer la chambre avec le numéro de chamre ${numChambre} ?`);
+        if (!confirmDelete) return;
 
       try {
           const success = await supprimerChambre(numBloc, numChambre);
@@ -396,7 +469,8 @@ function DeleteButtonChambre({ numBloc, numChambre, refreshChambre }){
 // Bouton supprimer bloc
 function DeleteButtonBloc({ numBloc, refreshBloc }){
   const handleSubmit = async () => {
-      // raha hanao anle voulez vous ... dia atao eto
+    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer le bloc avec le numéro de bloc ${numBloc} ?`);
+    if (!confirmDelete) return;
 
       try {
           const success = await supprimerBloc(numBloc);

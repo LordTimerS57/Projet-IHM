@@ -15,13 +15,14 @@ function ListeEtudiant({ etudiant, refresh }){
             <td>{new Date(etudiant.date_naiss).toLocaleDateString()}</td>
             <td>
                 {etudiant.a_paye ? 
-                // Bouton manao ny Premier paiement
+                // Bouton manao ny fandoavana isam-bolana
                   <AddPayButton
                     matricule={etudiant.matricule}
                   /> :
-                // Bouton manao ny fandoavana isam-bolana
+                // Bouton manao ny Premier paiement
                   <AddPay
                     etudiant={etudiant}
+                    refreshEtudiant={refresh}
                   />
                 }
                 {/* Bouton manao modification étudiant */}
@@ -48,16 +49,15 @@ function AddButton({ refreshEtudiant }) {
     const [showModal, setShowModal] = useState(false);
 
     const handleAdd = async (formData) => {
-        // raha hanao anle voulez vous ... dia atao eto
 
-        const success = await ajouterEtudiant(formData)
-        if (success) {
+        const result = await ajouterEtudiant(formData)
+        if (result.success) {
             alert("Étudiant ajouté avec succès !");
             await refreshEtudiant();
+            setShowModal(false);
         } else {
-            alert("Échec de l'ajout de l'étudiant.");
+            alert(result.error);
         }
-        setShowModal(false);
     };
 
     return (
@@ -90,18 +90,109 @@ function AddForm({ onSubmit, onCancel }) {
 
     const [step, setStep] = useState(1); 
     
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "contact") {
+        // Contact : uniquement des chiffres
+        const onlyDigits = value.replace(/\D/g, "");
+        setFormData(prev => ({ ...prev, [name]: onlyDigits }));
+    } else if (name === "nom" || name === "prenom") {
+        // Nom & Prénom : uniquement lettres, espaces, tirets, apostrophes
+        const onlyLetters = value.replace(/[^\p{L} '-]/gu, "");
+        setFormData(prev => ({ ...prev, [name]: onlyLetters }));
+    } else if (name === "date_naiss") {
+        // Vérification âge >= 12 ans
+        const birthDate = new Date(value);
+        const today = new Date();
+        const minDate = new Date(
+            today.getFullYear() - 12,
+            today.getMonth(),
+            today.getDate()
+        );
+
+        if (birthDate > minDate) {
+            alert("L'âge doit être d'au moins 12 ans.");
+            return; // on ne sauvegarde pas la date invalide
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    } else {
+        // Autres champs : inchangés
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
+};
+
     
-    const handleNext = () => setStep(2);
+ const handleNext = () => {
+    const { nom, contact, sexe, date_naiss, sit_parent } = formData;
+
+    // Vérification si tous les champs du step 1 sont remplis
+    if (!nom || !contact || !sexe || !date_naiss || !sit_parent) {
+        alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+        return;
+    }
+
+    // Vérification du contact (10 chiffres + format correct)
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct : 10 chiffres requis.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        setStep(2);
+        return;
+    }
+
+    // Cas 2 : commence par 03 + 3e chiffre valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            setStep(2);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
+
     const handleBack = () => setStep(1);
     
     const handleSubmit = (e) => {
-        e.preventDefault();
+    e.preventDefault();
+
+    const contact = formData.contact;
+
+    // Vérification si c'est bien 10 chiffres
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
         onSubmit(formData);
-    };
+        return;
+    }
+
+    // Cas 2 : commence par 03 et le 3e chiffre est valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère (après 03)
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            onSubmit(formData);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
     
     return (
         <form onSubmit={handleSubmit}>
@@ -120,7 +211,7 @@ function AddForm({ onSubmit, onCancel }) {
                             </div>
                             <div>
                                 <label>Prénoms </label>
-                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} required />
+                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange}/>
                             </div>
                             <div>
                                 <label>Contact *</label>
@@ -150,7 +241,7 @@ function AddForm({ onSubmit, onCancel }) {
                             </div>
                         </fieldset>
                         <div style={{ marginTop: '10px' }}>
-                            <button type="button" onClick={handleNext}> --- </button>
+                            <button type="button" onClick={handleNext}> Suivant </button>
                         </div>
                     </>
                 )}
@@ -184,7 +275,7 @@ function AddForm({ onSubmit, onCancel }) {
                             </div>
                         </fieldset>
                         <div style={{ marginTop: '10px' }}>
-                            <button type="button" onClick={handleBack}>---</button>
+                            <button type="button" onClick={handleBack}>Précédent</button>
                             <button type="submit" style={{ marginLeft: '10px' }}>Ajouter</button>
                         </div>
                     </>
@@ -233,17 +324,90 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
     const [step, setStep] = useState(1);
     
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+     const { name, value } = e.target;
 
-    const handleNext = () => setStep(2);
+    if (name === "contact") {
+        // Contact : uniquement des chiffres
+        const onlyDigits = value.replace(/\D/g, "");
+        setFormData(prev => ({ ...prev, [name]: onlyDigits }));
+    } else if (name === "nom" || name === "prenom") {
+        // Nom & Prénom : lettres (y compris accents), espace, apostrophe et tiret
+        const onlyLetters = value.replace(/[^\p{L} '-]/gu, "");
+        setFormData(prev => ({ ...prev, [name]: onlyLetters }));
+    } else {
+        // Les autres champs : inchangés
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    };
+    
+ const handleNext = () => {
+    const { nom, contact, sexe, date_naiss, sit_parent } = formData;
+
+    // Vérification si tous les champs du step 1 sont remplis
+    if (!nom || !contact || !sexe || !date_naiss || !sit_parent) {
+        alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+        return;
+    }
+
+    // Vérification du contact (10 chiffres + format correct)
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct : 10 chiffres requis.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        setStep(2);
+        return;
+    }
+
+    // Cas 2 : commence par 03 + 3e chiffre valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            setStep(2);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
+
     const handleBack = () => setStep(1);
     
     const handleSubmit = (e) => {
-        e.preventDefault();
+    e.preventDefault();
+
+    const contact = formData.contact;
+
+    // Vérification si c'est bien 10 chiffres
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
         onSubmit(formData);
-    };
+        return;
+    }
+
+    // Cas 2 : commence par 03 et le 3e chiffre est valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère (après 03)
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            onSubmit(formData);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
     
     return (
         <form onSubmit={handleSubmit}>
@@ -262,7 +426,7 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
                             </div>
                             <div>
                                 <label>Prénoms </label>
-                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange} required />
+                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange}/>
                             </div>
                             <div>
                                 <label>Contact *</label>
@@ -387,6 +551,9 @@ function ModalModify({ onClose, onSubmit, studentData }) {
 // Bouton modifier un étudiant
 function DeleteButton({ matricule , refreshEtudiant }){
     const handleSubmit = async () => {
+        // eslint-disable-next-line no-template-curly-in-string
+        const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer l'étudiant avec le matricule ${matricule} ?`);
+        if (!confirmDelete) return;
         try {
             const success = await supprimerEtudiant(matricule);
             if (success) {

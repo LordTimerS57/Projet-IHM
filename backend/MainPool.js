@@ -3,7 +3,7 @@ const connexion = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'cite_univ',
-    password: 'test1518',
+    password: '1234',
     port: 5432
 });
 
