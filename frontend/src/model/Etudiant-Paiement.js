@@ -129,6 +129,7 @@ function AddPay({ etudiant, refreshEtudiant }) {
   const [selectedBloc, setSelectedBloc] = useState(null);
   const [selectedChambre, setSelectedChambre] = useState(null);
   const [factureData, setFactureData] = useState(null);
+  const [paiementData, setPaiementData] = useState(null);
 
   useEffect(() => {
     if (showModal && etudiant) {
@@ -143,6 +144,7 @@ function AddPay({ etudiant, refreshEtudiant }) {
     setSelectedChambre(null);
     setInfoEtudiant(null);
     setFactureData(null);
+    setPaiementData(null);
   };
 
   const handleChambreSelected = (bloc, chambre) => {
@@ -167,10 +169,37 @@ function AddPay({ etudiant, refreshEtudiant }) {
       penalite: 0,
       jour_retard: 0
     };
-    
+
+    const paiement  = {
+      num_facture: genererNumFacture(infoEtudiant.matricule, selectedBloc.num_bloc, selectedChambre.num_chambre),
+      matricule: infoEtudiant.matricule,
+      nom_prenoms: `${infoEtudiant.nom} ${infoEtudiant.prenom}`,
+      num_bloc: selectedBloc.num_bloc,
+      design_bloc: selectedBloc.design_bloc,
+      num_chambre: selectedChambre.num_chambre,
+      montant: selectedChambre.loyer,
+      date_paiement: new Date().toISOString().split('T')[0],
+      mois_paye: getCurrentMonthYear(),
+    };
+
+    setPaiementData(paiement);
     setFactureData(facture);
     setStep(4);
   };
+
+  const handleFinal = async (data) => {
+    try {
+      const success = await ajouterPaiement(data);
+      if(success){
+        alert("Paiement ajouté avec succès !");
+        await refreshEtudiant();
+        closeModal();
+      }    
+  } catch (error) {
+      console.error("Erreur lors de l'ajout du paiement :", error);
+      alert("Une erreur s'est produite lors du paiement.");
+    }
+  }; 
 
   const getCurrentMonthYear = () => {
     const months = ["janvier", "février", "mars", "avril", "mai", "juin", 
@@ -294,13 +323,10 @@ function AddPay({ etudiant, refreshEtudiant }) {
                 {step === 4 && factureData && (
                   <div className="modal-step">
                     <h3>Facture générée</h3>
-                    <ModelPDF formData={factureData} onClose={closeModal} />
+                    <ModelPDF formData={factureData} onClose={() => handleFinal(paiementData)} />
                     <div className="modal-actions">
                       <button className="btn btn-secondary" onClick={() => setStep(3)}>
                         <FaArrowLeft /> Retour
-                      </button>
-                      <button className="btn btn-primary" onClick={closeModal}>
-                        Terminer
                       </button>
                     </div>
                   </div>

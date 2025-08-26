@@ -7,13 +7,16 @@ routeStat.get("/", async(_req,res) => {
     const resultNbEtudiant = await connexion.query("SELECT * FROM Nb_Etudiant");
     const resultNbBloc = await connexion.query("SELECT COUNT(*) FROM Bloc");
     const resultNbChambres = await connexion.query("SELECT COUNT(*) FROM Chambre");
+    const resultNbPlaces = await connexion.query("SELECT * FROM Chambre");
+    const PlacesDispo = resultNbPlaces.rows.reduce((acc,row) => acc + parseInt(row.nb_place_dispo), 0);
     const totalEtudiant = resultNbEtudiant.rows.reduce((acc,row) => acc + parseInt(row.etudiant_par_niveau), 0);
     
     res.json({
         nombreParNiveau : resultNbEtudiant,
         totalEtudiant : totalEtudiant,
         totalBloc : resultNbBloc,
-        totalChambres : resultNbChambres
+        totalChambres : resultNbChambres,
+        totalPlacesDispo : PlacesDispo
     });
 });
 

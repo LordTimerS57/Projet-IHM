@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchInfoGeneral } from '../../APIs/InfoGeneral';
-import { FaUserGraduate, FaBuilding, FaBed, FaExclamationTriangle, FaRedo } from "react-icons/fa";
+import { FaUserGraduate, FaBuilding, FaBed, FaExclamationTriangle, FaRedo, FaChartPie } from "react-icons/fa";
 import '../../css/Accueil.css';
 
 function Acceuil() {
@@ -86,7 +86,7 @@ function Acceuil() {
               </div>
             </div>
 
-            {/* <div className="card">
+            <div className="card">
               <div className="card-icon occupancy-icon">
                 <FaChartPie size={32} color="#2c3e50" />
               </div>
@@ -94,12 +94,12 @@ function Acceuil() {
                 <h3>Taux d'occupation</h3>
                 <p className="stat-number">
                   {infoGeneral.totalEtudiant && infoGeneral.totalChambres.rows[0].count 
-                    ? Math.round((infoGeneral.totalEtudiant / infoGeneral.totalChambres.rows[0].count) * 100) 
+                    ? (infoGeneral.totalEtudiant / (infoGeneral.totalPlacesDispo + infoGeneral.totalEtudiant) * 100 ).toFixed(2) 
                     : 0}%
                 </p>
                 <p className="stat-label">Chambres occupées</p>
               </div>
-            </div> */}
+            </div> 
           </div>
         )}
 
