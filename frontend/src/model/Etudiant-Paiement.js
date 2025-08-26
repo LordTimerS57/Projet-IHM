@@ -224,7 +224,7 @@ function AddPay({ etudiant, refreshEtudiant }) {
             textAlign: 'left',          
             color: 'white',       
             font: 'inherit',            
-            cursor: 'pointer'    
+            cursor: 'pointer'}}   
       >
         <FaMoneyBillWave /> Payer le premier loyer
       </button>
