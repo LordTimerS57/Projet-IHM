@@ -1,0 +1,233 @@
+/* Accueil.css */
+.page-content {
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* En-tête de page */
+  .page-header {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(67, 97, 238, 0.15);
+  }
+  
+  .page-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  
+  .page-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+  }
+  
+  /* Cartes de statistiques */
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-left: 4px solid #4361ee;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-icon {
+    font-size: 2.5rem;
+    margin-right: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .student-icon {
+    background: rgba(67, 97, 238, 0.1);
+    color: #4361ee;
+  }
+  
+  .bloc-icon {
+    background: rgba(58, 12, 163, 0.1);
+    color: #3a0ca3;
+  }
+  
+  .room-icon {
+    background: rgba(76, 201, 240, 0.1);
+    color: #4cc9f0;
+  }
+  
+  .occupancy-icon {
+    background: rgba(75, 181, 67, 0.1);
+    color: #4bb543;
+  }
+  
+  .card-content h3 {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #212529;
+    line-height: 1;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  /* États de chargement et d'erreur */
+  .loading-state, .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e9ecef;
+    border-top: 4px solid #4361ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-state p {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  .error-state p {
+    font-size: 1.1rem;
+    color: #dc3545;
+    margin-bottom: 20px;
+  }
+  
+  .retry-button {
+    background: #4361ee;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .retry-button:hover {
+    background: #3a0ca3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(58, 12, 163, 0.2);
+  }
+  
+  /* Section d'activité récente */
+  .recent-activity {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  .recent-activity h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #212529;
+    font-weight: 600;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .placeholder-activity {
+    padding: 40px 20px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page-content {
+      padding: 15px;
+    }
+    
+    .page-header {
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .page-header h1 {
+      font-size: 1.8rem;
+    }
+    
+    .dashboard-cards {
+      grid-template-columns: 1fr;
+    }
+    
+    .card {
+      padding: 20px;
+    }
+    
+    .card-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      margin-right: 15px;
+    }
+    
+    .stat-number {
+      font-size: 1.8rem;
+    }
+  }

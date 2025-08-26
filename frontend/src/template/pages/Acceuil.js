@@ -1,31 +1,104 @@
 import { useEffect, useState } from 'react';
 import { fetchInfoGeneral } from '../../APIs/InfoGeneral';
+import '../../css/Accueil.css';
 
 function Acceuil() {
   const [infoGeneral, setInfoGeneral] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     async function fetchData() {
-      const generalData = await fetchInfoGeneral();
-      console.log(generalData);
-      setInfoGeneral(generalData);
-
+      try {
+        setLoading(true);
+        const generalData = await fetchInfoGeneral();
+        setInfoGeneral(generalData);
+      } catch (err) {
+        setError('Erreur lors du chargement des données. Veuillez réessayer.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, []);
 
   return (
-    <div>
-      <h1>Bienvenue sur la page d'accueil</h1>
-      <p>Ceci est la page d'accueil du site.</p>
+    <div className="page-content">
+      <div className="container">
+        <header className="page-header">
+          <h1>Tableau de Bord Administratif</h1>
+          <p>Gérez les cités universitaires en un seul endroit</p>
+        </header>
 
-      {infoGeneral && (
-        <div>
-          <h2>Données générales</h2>
-          <p>Total étudiants : {infoGeneral.totalEtudiant}</p>
-          <p>Total blocs : {infoGeneral.totalBloc.rows[0].count}</p>
-          <p>Total chambres : {infoGeneral.totalChambres.rows[0].count}</p>
+        {loading && (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Chargement des données...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="error-state">
+            <div className="error-icon">⚠️</div>
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()} className="retry-button">
+              Réessayer
+            </button>
+          </div>
+        )}
+
+        {infoGeneral && !loading && (
+          <div className="dashboard-cards">
+            <div className="card">
+              <div className="card-icon student-icon">👨‍🎓</div>
+              <div className="card-content">
+                <h3>Étudiants</h3>
+                <p className="stat-number">{infoGeneral.totalEtudiant}</p>
+                <p className="stat-label">Total inscrits</p>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-icon bloc-icon">🏢</div>
+              <div className="card-content">
+                <h3>Blocs</h3>
+                <p className="stat-number">{infoGeneral.totalBloc.rows[0].count}</p>
+                <p className="stat-label">Blocs disponibles</p>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-icon room-icon">🛏️</div>
+              <div className="card-content">
+                <h3>Chambres</h3>
+                <p className="stat-number">{infoGeneral.totalChambres.rows[0].count}</p>
+                <p className="stat-label">Chambres au total</p>
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="card-icon occupancy-icon">📊</div>
+              <div className="card-content">
+                <h3>Taux d'occupation</h3>
+                <p className="stat-number">
+                  {infoGeneral.totalEtudiant && infoGeneral.totalChambres.rows[0].count 
+                    ? Math.round((infoGeneral.totalEtudiant / infoGeneral.totalChambres.rows[0].count) * 100) 
+                    : 0}%
+                </p>
+                <p className="stat-label">Chambres occupées</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="recent-activity">
+          <h2>Activité récente</h2>
+          <div className="placeholder-activity">
+            <p>Fonctionnalité en cours de développement...</p>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,250 @@
+.etudiant-page {
+    padding: 20px;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+    color: #212529;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .search-container {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 15px 12px 40px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+  }
+  
+  .filters-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-select {
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  
+  .table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow-x: auto;
+  }
+  
+  .tableEtudiant {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+  }
+  
+  .tableEtudiant thead {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+  }
+  
+  .tableEtudiant th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .tableEtudiant tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+  }
+  
+  .tableEtudiant tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .tableEtudiant td {
+    padding: 15px 12px;
+    color: #495057;
+    font-size: 0.95rem;
+  }
+  
+  .actions-cell {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .edit-button {
+    background-color: #4cc9f0;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #3aa8c9;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #bd2130;
+  }
+  
+  .view-button {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .view-button:hover {
+    background-color: #5a6268;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+  }
+  
+  .empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+  
+  .add-button-container {
+    margin-bottom: 20px;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .etudiant-page {
+      padding: 15px;
+    }
+    
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .controls-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .search-container {
+      max-width: 100%;
+    }
+    
+    .filters-container {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .filter-select {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    .table-container {
+      border-radius: 8px;
+    }
+    
+    .tableEtudiant {
+      min-width: unset;
+    }
+    
+    .tableEtudiant th,
+    .tableEtudiant td {
+      padding: 12px 8px;
+      font-size: 0.85rem;
+    }
+    
+    .actions-cell {
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .action-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  /* Animation pour le chargement */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .tableEtudiant tbody tr {
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  .tableEtudiant tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  
+  .tableEtudiant tbody tr:nth-child(even):hover {
+    background-color: #f1f3f5;
+  }
+  

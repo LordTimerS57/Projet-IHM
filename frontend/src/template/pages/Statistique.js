@@ -2,10 +2,13 @@
 import { useEffect, useState } from 'react';
 import { fetchMontantPaiement } from '../../APIs/InfoGeneral';
 import { BarChart } from '@mui/x-charts/BarChart';
+import '../../css/Statistique.css';
 
 function Statistiques() {
   const [chartData, setChartData] = useState(null);
   const [totalPaiement, setTotalPaiement] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Dictionnaire pour corriger les mois avec accents
   const moisAvecAccents = {
@@ -25,11 +28,19 @@ function Statistiques() {
 
   useEffect(() => {
     async function fetchData() {
-      const StatData = await fetchMontantPaiement();
-      const groupedData = groupDataByAnneeAndMois(StatData);
-      const formattedChartData = formatDataForChart(groupedData.group);
-      setChartData(formattedChartData);
-      setTotalPaiement(groupedData.total);
+      try {
+        setLoading(true);
+        const StatData = await fetchMontantPaiement();
+        const groupedData = groupDataByAnneeAndMois(StatData);
+        const formattedChartData = formatDataForChart(groupedData.group);
+        setChartData(formattedChartData);
+        setTotalPaiement(groupedData.total);
+      } catch (err) {
+        setError('Erreur lors du chargement des statistiques. Veuillez réessayer.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchData();
@@ -75,21 +86,76 @@ function Statistiques() {
   };
 
   return (
-    <div>
-      <h1>Bienvenue sur la page d'accueil</h1>
-      <p>Ceci est la page d'accueil du site.</p>
-      <p>Total Paiement : {totalPaiement.toLocaleString('fr-FR')} Ar</p>
+    <div className="page-content">
+      <div className="container">
+        <header className="page-header">
+          <h1>Statistiques des Paiements</h1>
+          <p>Visualisez les tendances des paiements au fil du temps</p>
+        </header>
 
-      {chartData && (
-        <BarChart
-          xAxis={[{ data: chartData.xAxisLabels }]}
-          series={chartData.series.map((serie) => ({
-            ...serie,
-            valueFormatter: (value) => `${value.toLocaleString('fr-FR')} Ar`,
-          }))}
-          height={400}
-        />
-      )}
+        {loading && (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Chargement des statistiques...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="error-state">
+            <div className="error-icon">⚠️</div>
+            <p>{error}</p>
+            <button onClick={() => window.location.reload()} className="retry-button">
+              Réessayer
+            </button>
+          </div>
+        )}
+
+        {chartData && !loading && (
+          <div className="stats-content">
+            <div className="total-payment-card">
+              <div className="card-icon payment-icon">💰</div>
+              <div className="card-content">
+                <h3>Total des Paiements</h3>
+                <p className="stat-number">{totalPaiement.toLocaleString('fr-FR')} Ar</p>
+                <p className="stat-label">Montant total collecté</p>
+              </div>
+            </div>
+
+            <div className="chart-container">
+              <h2>Répartition des paiements par mois et année</h2>
+              <div className="chart-wrapper">
+                <BarChart
+                  xAxis={[{ 
+                    data: chartData.xAxisLabels,
+                    scaleType: 'band',
+                    label: 'Années'
+                  }]}
+                  series={chartData.series.map((serie) => ({
+                    ...serie,
+                    valueFormatter: (value) => `${value.toLocaleString('fr-FR')} Ar`,
+                  }))}
+                  height={400}
+                  margin={{ left: 80, right: 30, top: 30, bottom: 50 }}
+                  colors={['#4361ee', '#3a0ca3', '#4cc9f0', '#7209b7', '#f72585', '#4bb543', 
+                          '#ff9e00', '#ff5400', '#00b4d8', '#0077b6', '#90be6d', '#577590']}
+                  sx={{
+                    '.MuiChartsAxis-label': {
+                      fontSize: '14px',
+                      fontWeight: '500',
+                    },
+                    '.MuiChartsAxis-tickLabel': {
+                      fontSize: '12px',
+                    },
+                    '.MuiChartsLegend-series text': {
+                      fontSize: '13px',
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
