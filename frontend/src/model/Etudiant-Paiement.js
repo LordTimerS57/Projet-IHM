@@ -212,7 +212,19 @@ function AddPay({ etudiant, refreshEtudiant }) {
     <>
       <button 
         onClick={() => setShowModal(true)} 
-        className="btn btn-primary btn-icon"
+        className="btn btn-info btn-sm btn-icon" style={{
+             backgroundColor: '#539DFD',
+            // background: 'rgba(120, 120, 120, 0.5)',   
+            border: 'none',             
+            outline: 'none',            
+            boxShadow: 'none',          
+            padding: 0,                 
+            margin: 0,                  
+            width: '80%',        
+            textAlign: 'left',          
+            color: 'white',       
+            font: 'inherit',            
+            cursor: 'pointer'    
       >
         <FaMoneyBillWave /> Payer le premier loyer
       </button>

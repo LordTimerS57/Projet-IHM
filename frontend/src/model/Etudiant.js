@@ -22,18 +22,19 @@ function ListeEtudiant({ etudiant, refresh }){
                     <AddPayButton
                         matricule={etudiant.matricule}
                         className="btn btn-success btn-icon"
-                        title="Voir les détails de paiement"
+                        title="Payer le loyer de cet étudiant"
                     >
                         <FaEye className="icon" />
-                        <span className="btn-text">Détails Paiement</span>
+                        <span className="btn-text">Paiement mensuel</span>
                     </AddPayButton> :
                     <AddPay
                         etudiant={etudiant}
-                        className="btn btn-warning btn-icon"
+                        refreshEtudiant={refresh}
+                        className="btn btn-success btn-icon"
                         title="Ajouter un paiement pour cet étudiant"
                     >
                         <FaMoneyBill className="icon" />
-                        <span className="btn-text">Payer</span>
+                        <span className="btn-text">Premier Paiement</span>
                     </AddPay>
                     }
                     <ModifyButton 
