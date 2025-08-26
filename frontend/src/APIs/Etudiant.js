@@ -22,7 +22,13 @@ async function ajouterEtudiant(Etudiant) {
             body : JSON.stringify(Etudiant)
         });
         const resultQuery = await response.json();
-        return resultQuery.Success;
+
+        if (response.ok && resultQuery.Success) {
+            return { success: true};
+        } else {
+            return { successs: false, error: resultQuery.error || "Échec de l'ajout de l'étudiant." };
+        }
+       
     } catch (error) {
         console.error("Error fetching data:", error);
         return;

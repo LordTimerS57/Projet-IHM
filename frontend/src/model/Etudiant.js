@@ -16,6 +16,7 @@ function ListeEtudiant({ etudiant, refresh }){
             <td>{etudiant.etablissement}</td>
             <td>{new Date(etudiant.date_naiss).toLocaleDateString()}</td>
             <td>
+<<<<<<< HEAD
                 <div className="action-buttons">
                     {etudiant.a_paye ? 
                     <AddPayButton
@@ -42,6 +43,33 @@ function ListeEtudiant({ etudiant, refresh }){
                         title="Supprimer cet étudiant"
                     />
                 </div>
+=======
+                {etudiant.a_paye ? 
+                // Bouton manao ny fandoavana isam-bolana
+                  <AddPayButton
+                    matricule={etudiant.matricule}
+                  /> :
+                // Bouton manao ny Premier paiement
+                  <AddPay
+                    etudiant={etudiant}
+                    refreshEtudiant={refresh}
+                  />
+                }
+                {/* Bouton manao modification étudiant */}
+                <ModifyButton 
+                    studentData={etudiant}
+                    refreshEtudiant={refresh}
+                />
+                {
+                /* 
+                    Bouton manao suppression étudiant 
+                */
+                }
+                <DeleteButton 
+                    refreshEtudiant={refresh}
+                    matricule={etudiant.matricule}
+                />
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
             </td>
         </tr>
     )
@@ -52,14 +80,24 @@ function AddButton({ refreshEtudiant }) {
     const [showModal, setShowModal] = useState(false);
 
     const handleAdd = async (formData) => {
+<<<<<<< HEAD
         const success = await ajouterEtudiant(formData)
         if (success) {
+=======
+
+        const result = await ajouterEtudiant(formData)
+        if (result.success) {
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
             alert("Étudiant ajouté avec succès !");
             await refreshEtudiant();
+            setShowModal(false);
         } else {
+<<<<<<< HEAD
             alert("Échec de l'ajout de l'étudiant. Veuillez vérifier que le matricule n'existe pas déjà.");
+=======
+            alert(result.error);
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
         }
-        setShowModal(false);
     };
 
     return (
@@ -98,9 +136,34 @@ function AddForm({ onSubmit, onCancel }) {
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
     
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "contact") {
+        // Contact : uniquement des chiffres
+        const onlyDigits = value.replace(/\D/g, "");
+        setFormData(prev => ({ ...prev, [name]: onlyDigits }));
+    } else if (name === "nom" || name === "prenom") {
+        // Nom & Prénom : uniquement lettres, espaces, tirets, apostrophes
+        const onlyLetters = value.replace(/[^\p{L} '-]/gu, "");
+        setFormData(prev => ({ ...prev, [name]: onlyLetters }));
+    } else if (name === "date_naiss") {
+        // Vérification âge >= 12 ans
+        const birthDate = new Date(value);
+        const today = new Date();
+        const minDate = new Date(
+            today.getFullYear() - 12,
+            today.getMonth(),
+            today.getDate()
+        );
+
+        if (birthDate > minDate) {
+            alert("L'âge doit être d'au moins 12 ans.");
+            return; // on ne sauvegarde pas la date invalide
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
+<<<<<<< HEAD
         // Effacer l'erreur quand l'utilisateur modifie le champ
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
@@ -231,6 +294,84 @@ function AddForm({ onSubmit, onCancel }) {
             setTouched(allTouched);
         }
     };
+=======
+    } else {
+        // Autres champs : inchangés
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
+};
+
+    
+ const handleNext = () => {
+    const { nom, contact, sexe, date_naiss, sit_parent } = formData;
+
+    // Vérification si tous les champs du step 1 sont remplis
+    if (!nom || !contact || !sexe || !date_naiss || !sit_parent) {
+        alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+        return;
+    }
+
+    // Vérification du contact (10 chiffres + format correct)
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct : 10 chiffres requis.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        setStep(2);
+        return;
+    }
+
+    // Cas 2 : commence par 03 + 3e chiffre valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            setStep(2);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
+
+    const handleBack = () => setStep(1);
+    
+    const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const contact = formData.contact;
+
+    // Vérification si c'est bien 10 chiffres
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        onSubmit(formData);
+        return;
+    }
+
+    // Cas 2 : commence par 03 et le 3e chiffre est valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère (après 03)
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            onSubmit(formData);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
     
     return (
         <form onSubmit={handleSubmit}>
@@ -293,6 +434,7 @@ function AddForm({ onSubmit, onCancel }) {
                                     {errors.prenom && touched.prenom && <span id="prenom-error" className="error-message">{errors.prenom}</span>}
                                 </div>
                             </div>
+<<<<<<< HEAD
                             
                             <div className="form-row">
                                 <div className="form-group">
@@ -329,6 +471,11 @@ function AddForm({ onSubmit, onCancel }) {
                                     </select>
                                     {errors.sexe && touched.sexe && <span id="sexe-error" className="error-message">{errors.sexe}</span>}
                                 </div>
+=======
+                            <div>
+                                <label>Prénoms </label>
+                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange}/>
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
                             </div>
                             
                             <div className="form-row">
@@ -368,12 +515,17 @@ function AddForm({ onSubmit, onCancel }) {
                                 </div>
                             </div>
                         </fieldset>
+<<<<<<< HEAD
                         
                         <div className="form-navigation">
                             <div></div>
                             <button type="button" className="btn btn-primary" onClick={handleNext}>
                                 Suivant →
                             </button>
+=======
+                        <div style={{ marginTop: '10px' }}>
+                            <button type="button" onClick={handleNext}> Suivant </button>
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
                         </div>
                     </>
                 )}
@@ -454,6 +606,7 @@ function AddForm({ onSubmit, onCancel }) {
                                 </div>
                             </div>
                         </fieldset>
+<<<<<<< HEAD
                         
                         <div className="form-navigation">
                             <button type="button" className="btn btn-secondary" onClick={handleBack}>
@@ -462,6 +615,11 @@ function AddForm({ onSubmit, onCancel }) {
                             <button type="submit" className="btn btn-success">
                                 ✅ Ajouter l'étudiant
                             </button>
+=======
+                        <div style={{ marginTop: '10px' }}>
+                            <button type="button" onClick={handleBack}>Précédent</button>
+                            <button type="submit" style={{ marginLeft: '10px' }}>Ajouter</button>
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
                         </div>
                     </>
                 )}
@@ -503,6 +661,7 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
     const [errors, setErrors] = useState({});
     
     const handleChange = (e) => {
+<<<<<<< HEAD
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) {
@@ -547,6 +706,92 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
             onSubmit(formData);
         }
     };
+=======
+     const { name, value } = e.target;
+
+    if (name === "contact") {
+        // Contact : uniquement des chiffres
+        const onlyDigits = value.replace(/\D/g, "");
+        setFormData(prev => ({ ...prev, [name]: onlyDigits }));
+    } else if (name === "nom" || name === "prenom") {
+        // Nom & Prénom : lettres (y compris accents), espace, apostrophe et tiret
+        const onlyLetters = value.replace(/[^\p{L} '-]/gu, "");
+        setFormData(prev => ({ ...prev, [name]: onlyLetters }));
+    } else {
+        // Les autres champs : inchangés
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    };
+    
+ const handleNext = () => {
+    const { nom, contact, sexe, date_naiss, sit_parent } = formData;
+
+    // Vérification si tous les champs du step 1 sont remplis
+    if (!nom || !contact || !sexe || !date_naiss || !sit_parent) {
+        alert("Veuillez remplir tous les champs obligatoires avant de continuer.");
+        return;
+    }
+
+    // Vérification du contact (10 chiffres + format correct)
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct : 10 chiffres requis.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        setStep(2);
+        return;
+    }
+
+    // Cas 2 : commence par 03 + 3e chiffre valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            setStep(2);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+
+
+    const handleBack = () => setStep(1);
+    
+    const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const contact = formData.contact;
+
+    // Vérification si c'est bien 10 chiffres
+    if (contact.length !== 10) {
+        alert("Veuillez entrer un numéro correct.");
+        return;
+    }
+
+    // Cas 1 : commence par 02
+    if (contact.startsWith("02")) {
+        onSubmit(formData);
+        return;
+    }
+
+    // Cas 2 : commence par 03 et le 3e chiffre est valide
+    if (contact.startsWith("03")) {
+        const thirdDigit = contact[2]; // le 3e caractère (après 03)
+        const validDigits = ["2", "3", "4", "7", "8", "9"];
+        if (validDigits.includes(thirdDigit)) {
+            onSubmit(formData);
+            return;
+        }
+    }
+
+    // Si aucune condition n'est remplie
+    alert("Veuillez entrer un numéro correct.");
+};
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
     
     return (
         <form onSubmit={handleSubmit}>
@@ -571,11 +816,17 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
                                 <input type="text" className="form-input" name="nom" value={formData.nom} onChange={handleChange} required />
                                 {errors.nom && <span style={{color: 'red', fontSize: '0.8rem'}}>{errors.nom}</span>}
                             </div>
+<<<<<<< HEAD
                             
                             <div className="form-group">
                                 <label className="form-label">Prénoms *</label>
                                 <input type="text" className="form-input" name="prenom" value={formData.prenom} onChange={handleChange} required />
                                 {errors.prenom && <span style={{color: 'red', fontSize: '0.8rem'}}>{errors.prenom}</span>}
+=======
+                            <div>
+                                <label>Prénoms </label>
+                                <input type="text" name="prenom" value={formData.prenom} onChange={handleChange}/>
+>>>>>>> b8a3594b7694d4d67c3bf8c8fedaeb8dd3f4544c
                             </div>
                             
                             <div className="form-group">
@@ -721,6 +972,9 @@ function DeleteButton({ matricule, refreshEtudiant, className = '' }){
     const [showConfirm, setShowConfirm] = useState(false);
     
     const handleSubmit = async () => {
+        // eslint-disable-next-line no-template-curly-in-string
+        const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer l'étudiant avec le matricule ${matricule} ?`);
+        if (!confirmDelete) return;
         try {
             const success = await supprimerEtudiant(matricule);
             if (success) {

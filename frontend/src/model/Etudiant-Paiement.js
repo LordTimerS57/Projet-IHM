@@ -112,7 +112,7 @@ function genererNumFacture(matricule, numBloc, numChambre) {
 }
 
 // Formulaire @ fandoavana vola @voalohany
-function AddPay({ etudiant }) {
+function AddPay({ etudiant , refreshEtudiant }) {
   const [showModal, setShowModal] = useState(false);
   const [step, setStep] = useState(1);
   const [infoEtudiant, setInfoEtudiant] = useState(null);
@@ -184,6 +184,7 @@ function AddPay({ etudiant }) {
     const formData = getData();
     const success = await ajouterPaiement(formData);
     if(success){
+      await refreshEtudiant();
       alert("Paiement effectuée");
     }
     else{
@@ -487,7 +488,7 @@ const ModelPDF = ({ formData, onClose }) => {
             <Text style={{ fontWeight: 'bold' }}>Nom et prénoms : </Text>{data.nom_prenoms}
           </Text>
           <Text style={styles.contentSection}>
-            <Text style={{ fontWeight: 'bold' }}>Date de paiement : </Text>{data.date_paiement}
+            <Text style={{ fontWeight: 'bold' }}>Date de paiement : </Text>{data.date_paiement.split("-").reverse().join("/")}
           </Text>
         </View>
   
@@ -546,7 +547,7 @@ const ModelPDF = ({ formData, onClose }) => {
           <div className="content-section"><strong>N° facture :</strong> {data.num_facture}</div>
           <div className="content-section"><strong>Matricule :</strong> {data.matricule}</div>
           <div className="content-section"><strong>Nom et prénoms :</strong> {data.nom_prenoms}</div>
-          <div className="content-section"><strong>Date de paiement :</strong> {data.date_paiement}</div>
+          <div className="content-section"><strong>Date de paiement :</strong> {data.date_paiement.split("-").reverse().join("/")}</div>
         </div>
 
         <table className="table">
