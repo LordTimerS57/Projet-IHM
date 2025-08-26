@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { FaHome, FaUserGraduate, FaBuilding, FaCreditCard, FaChartBar } from "react-icons/fa";
 import '../css/Dashboard.css';
 
 function Dashboard({ isCollapsed }) {
@@ -15,31 +16,31 @@ function Dashboard({ isCollapsed }) {
           <ul>
             <li className={location.pathname === '/' ? 'active' : ''}>
               <Link to="/">
-                <span className="nav-icon">🏠</span>
+                <span className="nav-icon"><FaHome /></span>
                 {!isCollapsed && <span className="nav-text">Accueil</span>}
               </Link>
             </li>
             <li className={location.pathname === '/etudiant' ? 'active' : ''}>
               <Link to="/etudiant">
-                <span className="nav-icon">👨‍🎓</span>
+                <span className="nav-icon"><FaUserGraduate /></span>
                 {!isCollapsed && <span className="nav-text">Étudiants</span>}
               </Link>
             </li>
-            <li className={location.pathname === '/cité' ? 'active' : ''}>
+            <li className={location.pathname === '/cit%C3%A9' ? 'active' : ''}>
               <Link to="/cité">
-                <span className="nav-icon">🏢</span>
+                <span className="nav-icon"><FaBuilding /></span>
                 {!isCollapsed && <span className="nav-text">Blocs</span>}
               </Link>
             </li>
             <li className={location.pathname === '/paiement' ? 'active' : ''}>
               <Link to="/paiement">
-                <span className="nav-icon">💳</span>
+                <span className="nav-icon"><FaCreditCard /></span>
                 {!isCollapsed && <span className="nav-text">Paiements</span>}
               </Link>
             </li>
             <li className={location.pathname === '/statistiques' ? 'active' : ''}>
               <Link to="/statistiques">
-                <span className="nav-icon">📊</span>
+                <span className="nav-icon"><FaChartBar /></span>
                 {!isCollapsed && <span className="nav-text">Statistiques</span>}
               </Link>
             </li>

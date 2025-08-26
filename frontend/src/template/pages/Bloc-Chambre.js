@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchInfoBloc, fetchInfoBlocChambre } from '../../APIs/Bloc-Chambre';
 import { ListeBloc, AddModalBloc } from '../../model/Bloc-Chambre';
+import { FaPlus } from 'react-icons/fa';
 import '../../css/Bloc-Chambre.css';
 
 function Cite() {
@@ -91,7 +92,7 @@ function Cite() {
                     onClick={() => setShowAddModal(true)} 
                     className="add-button"
                   >
-                    <span className="button-icon">➕</span>
+                    <FaPlus className="icon" />
                     Ajouter un bloc
                   </button>
                 </div>
@@ -131,7 +132,10 @@ function Cite() {
                 nomBloc={selectedBloc.design_bloc}
                 nbChambres={selectedBloc.nb_chambres}
                 habite={getEtatGeneralHabitation(chambresParBloc[selectedBloc.num_bloc] || [])}
-                onBack={() => setSelectedBloc(null)} 
+                onBack={() => {
+                  setSelectedBloc(null);
+                  fetchData();
+                }} 
                 refresh={fetchData}
               />
             )}

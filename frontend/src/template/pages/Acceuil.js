@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchInfoGeneral } from '../../APIs/InfoGeneral';
+import { FaUserGraduate, FaBuilding, FaBed, FaExclamationTriangle, FaRedo } from "react-icons/fa";
 import '../../css/Accueil.css';
 
 function Acceuil() {
@@ -40,10 +41,12 @@ function Acceuil() {
 
         {error && (
           <div className="error-state">
-            <div className="error-icon">⚠️</div>
+            <div className="error-icon">
+              <FaExclamationTriangle size={30} color="red" />
+            </div>
             <p>{error}</p>
             <button onClick={() => window.location.reload()} className="retry-button">
-              Réessayer
+              <FaRedo /> Réessayer
             </button>
           </div>
         )}
@@ -51,7 +54,9 @@ function Acceuil() {
         {infoGeneral && !loading && (
           <div className="dashboard-cards">
             <div className="card">
-              <div className="card-icon student-icon">👨‍🎓</div>
+              <div className="card-icon student-icon">
+                <FaUserGraduate size={32} color="#2c3e50" />
+              </div>
               <div className="card-content">
                 <h3>Étudiants</h3>
                 <p className="stat-number">{infoGeneral.totalEtudiant}</p>
@@ -60,7 +65,9 @@ function Acceuil() {
             </div>
 
             <div className="card">
-              <div className="card-icon bloc-icon">🏢</div>
+              <div className="card-icon bloc-icon">
+                <FaBuilding size={32} color="#2c3e50" />
+              </div>
               <div className="card-content">
                 <h3>Blocs</h3>
                 <p className="stat-number">{infoGeneral.totalBloc.rows[0].count}</p>
@@ -69,7 +76,9 @@ function Acceuil() {
             </div>
 
             <div className="card">
-              <div className="card-icon room-icon">🛏️</div>
+              <div className="card-icon room-icon">
+                <FaBed size={32} color="#2c3e50" />
+              </div>
               <div className="card-content">
                 <h3>Chambres</h3>
                 <p className="stat-number">{infoGeneral.totalChambres.rows[0].count}</p>
@@ -77,8 +86,10 @@ function Acceuil() {
               </div>
             </div>
 
-            <div className="card">
-              <div className="card-icon occupancy-icon">📊</div>
+            {/* <div className="card">
+              <div className="card-icon occupancy-icon">
+                <FaChartPie size={32} color="#2c3e50" />
+              </div>
               <div className="card-content">
                 <h3>Taux d'occupation</h3>
                 <p className="stat-number">
@@ -88,7 +99,7 @@ function Acceuil() {
                 </p>
                 <p className="stat-label">Chambres occupées</p>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 

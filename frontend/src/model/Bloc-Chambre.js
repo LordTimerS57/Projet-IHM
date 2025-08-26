@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { ajouterBloc, ajouterChambre, fetchInfoBlocChambre , supprimerChambre, supprimerBloc, modifierChambre } from '../APIs/Bloc-Chambre';
+import '../css/Bloc-Chambre.css';
+import { FaPlus } from 'react-icons/fa';
 
-// @ty le fenetre mamoaka anle détails anle chambre avy natao clic
 function ModalChambre({ chambre, onClose, refreshChambre, refreshChambre1 }) {
   const [showModify, setShowModify] = useState(false);
 
   const handleSave = async (updatedChambre) => {
-    // raha hanao anle voulez vous ... dia atao eto
-
     try {
       const success = await modifierChambre(updatedChambre);
       if(success){    
-        setShowModify(false); // ferme la modale de modification
+        setShowModify(false);
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour", error);
@@ -19,50 +18,45 @@ function ModalChambre({ chambre, onClose, refreshChambre, refreshChambre1 }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)', display: 'flex',
-      justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      
-        {showModify ? (
-          <ModifyChambreModal
-            chambre={chambre}
-            onClose={() => {
-              setShowModify(false); 
-              refreshChambre1(chambre.num_bloc)}
-            }
-            onSave={handleSave}
-          />
-        ) : (
-          <div style={{
-            backgroundColor: 'white', padding: '20px', borderRadius: '8px',
-            minWidth: '300px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-          }}>
-              <button onClick={onClose} style={{ marginTop: '10px' }}>Fermer</button>
-              <h2>Détails de la chambre {chambre.num_chambre}</h2>
-              <p><strong>Places disponibles :</strong> {chambre.nb_place_dispo}</p>
-              <p><strong>Habitable :</strong> {chambre.etat ? 'Oui' : 'Non' }</p>
-              <p><strong>Habitée :</strong> {chambre.habitee ? 'Oui' : 'Non' }</p>
-              <p><strong>Loyer :</strong> {chambre.loyer} Ar</p>
-              <button onClick={() => setShowModify(true)}>Modifier</button>
-              {
-                chambre.habitee ? (<></>) : (
-                  <DeleteButtonChambre
-                    numChambre={chambre.num_chambre}
-                    numBloc={chambre.num_bloc}
-                    refreshChambre={refreshChambre}
-                  />
-                )
-              }
-              
+    <div className="modal-overlay">
+      {showModify ? (
+        <ModifyChambreModal
+          chambre={chambre}
+          onClose={() => {
+            setShowModify(false); 
+            refreshChambre1(chambre.num_bloc);
+          }}
+          onSave={handleSave}
+        />
+      ) : (
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2>Détails de la chambre {chambre.num_chambre}</h2>
+            <button className="close-button" onClick={onClose}>×</button>
           </div>
-        )}
+          <div className="chambre-details">
+            <p><strong>Places disponibles :</strong> {chambre.nb_place_dispo}</p>
+            <p><strong>Habitable :</strong> {chambre.etat ? 'Oui' : 'Non' }</p>
+            <p><strong>Habitée :</strong> {chambre.habitee ? 'Oui' : 'Non' }</p>
+            <p><strong>Loyer :</strong> {chambre.loyer} Ar</p>
+          </div>
+          <div className="form-buttons">
+            <button className="btn-primary" onClick={() => setShowModify(true)}>Modifier</button>
+            {chambre.habitee ? null : (
+              <DeleteButtonChambre
+                numChambre={chambre.num_chambre}
+                numBloc={chambre.num_bloc}
+                refreshChambre={refreshChambre}
+              />
+            )}
+            <button className="btn-secondary" onClick={onClose}>Fermer</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// Formulaire ajout d'un bloc + chambres
 function AddModalBloc({ onClose, onSuccess, numBloc }) {
   const [nomBloc, setNomBloc] = useState('');
   const [nbChambres, setNbChambres] = useState(1);
@@ -79,7 +73,6 @@ function AddModalBloc({ onClose, onSuccess, numBloc }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // raha hanao anle voulez vous ... dia atao eto
     try {
       const success = await ajouterBloc(formData);
       if (success){
@@ -93,81 +86,84 @@ function AddModalBloc({ onClose, onSuccess, numBloc }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
-      justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white', padding: '20px', borderRadius: '8px',
-        minWidth: '400px'
-      }}>
-       <h2>Ajouter un bloc</h2>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Ajouter un bloc</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
         <form onSubmit={handleSubmit}>
-          <label>
-            Nom du bloc :
-            <input
-              type="text"
-              value={nomBloc}
-              onChange={(e) => {
-                // Autorise lettres (avec accents), chiffres, espaces et apostrophes
-                const onlyValidChars =  e.target.value.replace(/[^\p{L}0-9 '-]/gu, "");
-                setNomBloc(onlyValidChars);
-              }}
-              required
-            />
-          </label><br /><br />
+          <div className="form-group">
+            <label>
+              Nom du bloc :
+              <input
+                type="text"
+                value={nomBloc}
+                onChange={(e) => {
+                  const onlyValidChars =  e.target.value.replace(/[^\p{L}0-9 '-]/gu, "");
+                  setNomBloc(onlyValidChars);
+                }}
+                required
+              />
+            </label>
+          </div>
 
-          <label>
-            Nombre de chambres :
-            <input
-              type="text"
-              value={nbChambres}
-              onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, ""); 
-                setNbChambres(onlyDigits);
-              }}
-              required
-            />
-          </label><br /><br />
+          <div className="form-group">
+            <label>
+              Nombre de chambres :
+              <input
+                type="text"
+                value={nbChambres}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                  setNbChambres(onlyDigits);
+                }}
+                required
+              />
+            </label>
+          </div>
 
-          <label>
-            Nombre de places par chambre :
-            <input
-              type="text"
-              value={nbPlaces}
-              onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, ""); 
-                setNbPlaces(onlyDigits);
-              }}
-              required
-            />
-          </label><br /><br />
+          <div className="form-group">
+            <label>
+              Nombre de places par chambre :
+              <input
+                type="text"
+                value={nbPlaces}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                  setNbPlaces(onlyDigits);
+                }}
+                required
+              />
+            </label>
+          </div>
 
-          <label>
-            Loyer par chambre :
-            <input
-              type="text"
-              value={loyer}
-              onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, ""); 
-                setLoyer(onlyDigits);
-              }}
-              required
-            />
-          </label><br /><br />
+          <div className="form-group">
+            <label>
+              Loyer par chambre :
+              <input
+                type="text"
+                value={loyer}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, ""); 
+                  setLoyer(onlyDigits);
+                }}
+                required
+              />
+            </label>
+          </div>
 
-          <button type="submit">Ajouter</button>
-          <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
+          <div className="form-buttons">
+            <button className="btn-primary" type="submit">Ajouter</button>
+            <button className="btn-secondary" type="button" onClick={onClose}>Annuler</button>
+          </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-// @ty le mamoaka anle chambres anaty bloc
-function ListeChambre({ num_chambre, nb_place_dispo, habitee, loyer, num_bloc, etat, onSuccess }) 
-{
+function ListeChambre({ num_chambre, nb_place_dispo, habitee, loyer, num_bloc, etat, onSuccess }) {
   const [showModal, setShowModal] = useState(false);
 
   const chambreData = {
@@ -183,30 +179,26 @@ function ListeChambre({ num_chambre, nb_place_dispo, habitee, loyer, num_bloc, e
     <>
       <button
         onClick={() => setShowModal(true)}
-        style={{
-          border: '1px solid #ccc', padding: '8px', margin: '4px',
-          width: '100%', textAlign: 'left'
-        }}
+        className="chambre-button"
       >
         <strong>Chambre {num_chambre}</strong>
       </button>
 
       {showModal && 
         <ModalChambre 
-        chambre={chambreData} 
-        onClose={() => setShowModal(false)} 
-        refreshChambre={ () => { 
-          setShowModal(false); 
-          onSuccess(num_bloc); 
-        } }
-        refreshChambre1={onSuccess}
-      />
+          chambre={chambreData} 
+          onClose={() => setShowModal(false)} 
+          refreshChambre={ () => { 
+            setShowModal(false); 
+            onSuccess(num_bloc); 
+          } }
+          refreshChambre1={onSuccess}
+        />
       }
     </>
   );
 }
 
-// @ty mamoaka anle bloc
 function ListeBloc({ numBloc, nomBloc, nbChambres, habite, onSelect, onBack, refresh }) {
   const [chambres, setChambres] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -227,43 +219,65 @@ function ListeBloc({ numBloc, nomBloc, nbChambres, habite, onSelect, onBack, ref
 
   if (!showChambres) {
     return (
-      <div style={{ marginBottom: '20px' }}>
-        <button onClick={onSelect}>
-          <p><strong>{nomBloc}</strong></p>
+      <div className="bloc-card">
+        
+        <button 
+          onClick={onSelect} 
+          style={{
+            background: 'transparent',  
+            border: 'none',             
+            outline: 'none',            
+            boxShadow: 'none',          
+            padding: 0,                 
+            margin: 0,                  
+            width: '100%',        
+            textAlign: 'left',          
+            color: 'inherit',       
+            font: 'inherit',            
+            cursor: 'pointer'         
+          }}
+        >
+          <h3>{nomBloc}</h3>
           <p>Nombre de chambres : {nbChambres}</p>
         </button>
         {!habite && <DeleteButtonBloc numBloc={numBloc} refreshBloc={refresh}/>}
       </div>
     );
-  }
- else
-  {
+  } else {
     return (
       <div>
-        <button onClick={onBack}>← Retour à la liste des blocs</button>
+        <button className="back-button" onClick={onBack}>← Retour à la liste des blocs</button>
         <h3>Chambres du {nomBloc}</h3>
         {loading ? (
-          <p>Chargement des chambres...</p>
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Chargement des chambres...</p>
+          </div>
         ) : (
           <>
             {(petitPremierNumChambreOublie > Math.max(...chambres.map(b => parseInt(b.num_chambre))) && Math.max(...chambres.map(b => parseInt(b.num_chambre) % 100)) === 99) ? null : (
-              <button onClick={() => setShowAddModalChambre(true)}>➕ Ajouter une chambre</button>
+              <button className="add-button" onClick={() => setShowAddModalChambre(true)}>
+                <FaPlus />
+                Ajouter une chambre
+              </button>
             )}
 
-            {chambres.map((chambre) => (
-              <ListeChambre
-                key={chambre.num_chambre}
-                num_chambre={chambre.num_chambre}
-                nb_place_dispo={chambre.nb_place_dispo}
-                habitee={chambre.habitee}
-                loyer={chambre.loyer}
-                etat={chambre.etat}
-                num_bloc={chambre.num_bloc}
-                onSuccess={() => {
-                  fetchInfoBlocChambre(numBloc).then((BlocChambres) => setChambres(BlocChambres || []));
-                }}
-              />
-            ))}
+            <div className="chambre-list">
+              {chambres.map((chambre) => (
+                <ListeChambre
+                  key={chambre.num_chambre}
+                  num_chambre={chambre.num_chambre}
+                  nb_place_dispo={chambre.nb_place_dispo}
+                  habitee={chambre.habitee}
+                  loyer={chambre.loyer}
+                  etat={chambre.etat}
+                  num_bloc={chambre.num_bloc}
+                  onSuccess={() => {
+                    fetchInfoBlocChambre(numBloc).then((BlocChambres) => setChambres(BlocChambres || []));
+                  }}
+                />
+              ))}
+            </div>
 
             {showAddModalChambre && (
               <AddModalChambre
@@ -283,8 +297,6 @@ function ListeBloc({ numBloc, nomBloc, nbChambres, habite, onSelect, onBack, ref
   }
 }
 
-
-// Fonction pour calculer le plus petit numéro de chambre manquant
 function trouverPetitPremierNumChambre(arr) {
   arr.sort((a, b) => a - b);
   for (let i = 1; i < arr.length; i++) {
@@ -295,14 +307,11 @@ function trouverPetitPremierNumChambre(arr) {
   return parseInt(arr[arr.length - 1]) + 1;
 }
 
-// Formulaire ajouter chambre
 function AddModalChambre({ onClose, onSuccess, chambres, numChambre}) {
-
   const [loyer, setLoyer] = useState('');
   const [nbPlaces, setNbPlaces] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Définir le loyer et le nombre de places à ceux des autres chambres existantes
   const loyerParDefaut = chambres.length > 0 ? chambres[0].loyer : '';
   const nbPlacesParDefaut = chambres.length > 0 ? chambres[0].nb_place_dispo : '';
   const numBloc = chambres.length > 0 ? chambres[0].num_bloc : '';
@@ -316,7 +325,6 @@ function AddModalChambre({ onClose, onSuccess, chambres, numChambre}) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // raha hanao anle voulez vous ... dia atao eto
     setLoading(true);
     try {
       const success = await ajouterChambre(nouvelleChambre);
@@ -333,56 +341,65 @@ function AddModalChambre({ onClose, onSuccess, chambres, numChambre}) {
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex',
-      justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white', padding: '20px', borderRadius: '8px',
-        minWidth: '400px'
-      }}>
-        <h2>Ajouter une chambre</h2>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Ajouter une chambre</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
         <form onSubmit={handleSubmit}>
-          <label>
-            Numéro de chambre :
-            <input type="text" value={numChambre} disabled />
-          </label><br /><br />
-          <label>
-            Nombre de places par chambre :
-            <input 
-              type="text" 
-              value={nbPlacesParDefaut} 
-              maxLength="2" 
-              onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, ""); // supprime tout sauf chiffres
-                setNbPlaces(onlyDigits);
-              }} 
-              required 
-            />
-          </label><br /><br />
+          <div className="form-group">
+            <label>
+              Numéro de chambre :
+              <input type="text" value={numChambre} disabled />
+            </label>
+          </div>
 
-          <label>
-            Loyer par chambre :
-            <input 
-              type="text" 
-              value={loyerParDefaut} 
-              onChange={(e) => {
-                const onlyDigits = e.target.value.replace(/\D/g, ""); // supprime tout sauf chiffres
-                setLoyer(onlyDigits);
-              }} 
-              required 
-            />
-          </label><br /><br />
-          <button type="submit" disabled={loading}>{loading ? 'Chargement...' : 'Ajouter'}</button>
-          <button type="button" onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
+          <div className="form-group">
+            <label>
+              Nombre de places par chambre :
+              <input 
+                type="text" 
+                value={nbPlaces} 
+                placeholder={nbPlacesParDefaut}
+                maxLength="2" 
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, "");
+                  setNbPlaces(onlyDigits);
+                }} 
+                required 
+              />
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>
+              Loyer par chambre :
+              <input 
+                type="text" 
+                value={loyer} 
+                placeholder={loyerParDefaut}
+                onChange={(e) => {
+                  const onlyDigits = e.target.value.replace(/\D/g, "");
+                  setLoyer(onlyDigits);
+                }} 
+                required 
+              />
+            </label>
+          </div>
+
+          <div className="form-buttons">
+            <button className="btn-primary" type="submit" disabled={loading}>
+              {loading ? 'Chargement...' : 'Ajouter'}
+            </button>
+            <button className="btn-secondary" type="button" onClick={onClose}>Annuler</button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
 
-// Formulaire modifier chambre
 function ModifyChambreModal({ chambre, onClose, onSave }) {
   const [loyer, setLoyer] = useState(chambre.loyer);
   const [places, setPlaces] = useState(chambre.nb_place_dispo);
@@ -401,93 +418,95 @@ function ModifyChambreModal({ chambre, onClose, onSave }) {
   };
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex',
-      justifyContent: 'center', alignItems: 'center', zIndex: 1000
-    }}>
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
-        <h2>Modifier Chambre {num_chambre}</h2>
-        <label>
-          Loyer :
-          <input 
-            type="text" 
-            value={loyer} 
-            onChange={(e) => {
-              const onlyDigits = e.target.value.replace(/\D/g, ""); // garder seulement les chiffres
-              setLoyer(onlyDigits);
-            }} 
-            required
-          />
-        </label><br />
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>Modifier Chambre {num_chambre}</h2>
+          <button className="close-button" onClick={onClose}>×</button>
+        </div>
+        
+        <div className="form-group">
+          <label>
+            Loyer :
+            <input 
+              type="text" 
+              value={loyer} 
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, "");
+                setLoyer(onlyDigits);
+              }} 
+              required
+            />
+          </label>
+        </div>
 
-        <label>
-          Places :
-          <input 
-            type="text" 
-            value={places} 
-            onChange={(e) => {
-              const onlyDigits = e.target.value.replace(/\D/g, ""); // garder seulement les chiffres
-              setPlaces(onlyDigits);
-            }} 
-            required
-          />
-        </label><br />
-        <button onClick={handleSave}>Enregistrer</button>
-        <button onClick={onClose} style={{ marginLeft: '10px' }}>Annuler</button>
+        <div className="form-group">
+          <label>
+            Places :
+            <input 
+              type="text" 
+              value={places} 
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, "");
+                setPlaces(onlyDigits);
+              }} 
+              required
+            />
+          </label>
+        </div>
+
+        <div className="form-buttons">
+          <button className="btn-primary" onClick={handleSave}>Enregistrer</button>
+          <button className="btn-secondary" onClick={onClose}>Annuler</button>
+        </div>
       </div>
     </div>
   );
 }
 
-// Bouton supprimer chambre
 function DeleteButtonChambre({ numBloc, numChambre, refreshChambre }){
   const handleSubmit = async () => {
-    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer la chambre avec le numéro de chamre ${numChambre} ?`);
-        if (!confirmDelete) return;
+    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer la chambre avec le numéro de chambre ${numChambre} ?`);
+    if (!confirmDelete) return;
 
-      try {
-          const success = await supprimerChambre(numBloc, numChambre);
-          if (success) {
-            await refreshChambre();
-
-          } else {
-            alert("Échec de la suppression.");
-          }
-        } catch (error) {
-          console.error("Erreur de suppression :", error);
-          alert("Une erreur est survenue.");
-        }
+    try {
+      const success = await supprimerChambre(numBloc, numChambre);
+      if (success) {
+        await refreshChambre();
+      } else {
+        alert("Échec de la suppression.");
+      }
+    } catch (error) {
+      console.error("Erreur de suppression :", error);
+      alert("Une erreur est survenue.");
+    }
   }
  
   return(
-      <button onClick={handleSubmit}>Supprimer</button>
+    <button className="btn-danger" onClick={handleSubmit}>Supprimer</button>
   )
 }
 
-
-// Bouton supprimer bloc
 function DeleteButtonBloc({ numBloc, refreshBloc }){
   const handleSubmit = async () => {
     const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer le bloc avec le numéro de bloc ${numBloc} ?`);
     if (!confirmDelete) return;
 
-      try {
-          const success = await supprimerBloc(numBloc);
-          if (success) {
-            await refreshBloc(numBloc);
-
-          } else {
-            alert("Échec de la suppression.");
-          }
-        } catch (error) {
-          console.error("Erreur de suppression :", error);
-          alert("Une erreur est survenue.");
-        }
+    try {
+      const success = await supprimerBloc(numBloc);
+      if (success) {
+        await refreshBloc(numBloc);
+      } else {
+        alert("Échec de la suppression.");
+      }
+    } catch (error) {
+      console.error("Erreur de suppression :", error);
+      alert("Une erreur est survenue.");
+    }
   }
  
   return(
-      <button onClick={handleSubmit}>Supprimer</button>
+    <button className="btn-danger" onClick={handleSubmit}>Supprimer</button>
   )
 }
 

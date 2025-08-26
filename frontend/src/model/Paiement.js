@@ -1,7 +1,117 @@
-// import { useState } from "react";
-import { /* modifierPaiement , */ supprimerPaiement } from "../APIs/Paiement";
+import { useState } from "react";
+import { supprimerPaiement } from "../APIs/Paiement";
+import { FaTrash, FaTimes, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import "../css/Paiement.css";
 
-// Affichage de l'historique de paiement
+// Composant Modal de confirmation
+function DeleteConfirmationModal({ isOpen, onClose, onConfirm, numPaie }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-container">
+        <div className="modal-header">
+          <h3>Confirmation de suppression</h3>
+          <button className="modal-close-btn" onClick={onClose}>
+            <FaTimes />
+          </button>
+        </div>
+        <div className="modal-body">
+          <p>Voulez-vous vraiment supprimer le paiement #{numPaie} ?</p>
+        </div>
+        <div className="modal-footer">
+          <button className="btn-secondary" onClick={onClose}>
+            Annuler
+          </button>
+          <button className="btn-danger" onClick={onConfirm}>
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Composant de notification
+function Notification({ message, type, isVisible, onClose }) {
+  if (!isVisible) return null;
+
+  const icon = type === "success" ? <FaCheckCircle /> : <FaExclamationTriangle />;
+
+  return (
+    <div className={`notification ${type} ${isVisible ? "show" : ""}`}>
+      <div className="notification-content">
+        <span className="notification-icon">{icon}</span>
+        <span className="notification-message">{message}</span>
+      </div>
+      <button className="notification-close" onClick={onClose}>
+        <FaTimes />
+      </button>
+    </div>
+  );
+}
+
+// Bouton supprimer un paiement
+function DeleteButton({ numPaie, matricule, numBloc, numChambre, refreshPaiement }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: "",
+    type: "" // "success" ou "error"
+  });
+
+  const showNotification = (message, type) => {
+    setNotification({ isVisible: true, message, type });
+    
+    // Masquer automatiquement après 5 secondes
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, isVisible: false }));
+    }, 5000);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const success = await supprimerPaiement(numPaie, matricule, numBloc, numChambre);
+      if (success) {
+        showNotification("Paiement supprimé avec succès", "success");
+        await refreshPaiement();
+      } else {
+        showNotification("Échec de la suppression du paiement", "error");
+      }
+    } catch (error) {
+      console.error("Erreur de suppression :", error);
+      showNotification("Une erreur est survenue lors de la suppression", "error");
+    }
+    setIsModalOpen(false);
+  };
+
+  return (
+    <>
+      <button 
+        className="delete-button" 
+        onClick={() => setIsModalOpen(true)}
+      >
+        <FaTrash />
+      </button>
+
+      <DeleteConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleDelete}
+        numPaie={numPaie}
+      />
+
+      <Notification
+        isVisible={notification.isVisible}
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification({ ...notification, isVisible: false })}
+      />
+    </>
+  );
+}
+
+// Affichage d'une ligne de l'historique de paiement (inchangé)
 function ListePaiement({
   matricule,
   numPaie,
@@ -14,28 +124,16 @@ function ListePaiement({
   refresh
 }) {
   return (
-    <tr>
+    <tr className="paiement-row">
       <td>{matricule}</td>
       <td>{numPaie}</td>
       <td>{nom_prenoms}</td>
       <td>{numBloc}</td>
       <td>{numChambre}</td>
-      <td>{montant}</td>
+      <td>{montant} Ar</td>
       <td>{mois_paye}</td>
       <td>{new Date(date_paiement).toLocaleDateString()}</td>
       <td>
-        {/*
-          <ModifyButton 
-            numPaie={numPaie} 
-            montant={montant} 
-            mois_paye={mois_paye} 
-            date_paiement={date_paiement}
-            matricule={matricule}
-            numBloc={numBloc}
-            numChambre={numChambre}
-            refreshPaiement={refresh}
-          />
-        */}
         <DeleteButton
           numPaie={numPaie}
           matricule={matricule}
@@ -47,204 +145,5 @@ function ListePaiement({
     </tr>
   );
 }
-/*
-function ModifyButton({ numPaie, montant, mois_paye, date_paiement, matricule, numBloc, numChambre, refreshPaiement}) {
-  const [showModal, setShowModal] = useState(false);
-
-  const handleModify = async (formData) => {
-    try {
-      const success = await modifierPaiement(numPaie, matricule, numBloc, numChambre, formData);
-      if (success) {
-        await refreshPaiement();
-        setShowModal(false);
-      } else {
-        alert("Échec de la suppression.");
-      }
-    } catch (error) {
-      console.error("Erreur de suppression :", error);
-      alert("Une erreur est survenue.");
-    }
-  };
-
-  return (
-    <>
-      <button onClick={() => setShowModal(true)}>Modifier</button>
-      {showModal && (
-        <ModalModify 
-          onClose={() => setShowModal(false)} 
-          onSubmit={handleModify}
-          montant={montant}
-          mois_paye={mois_paye}
-          date_paiement={date_paiement}
-          matricule={matricule}
-          numBloc={numBloc}
-          numChambre={numChambre}
-          numPaie={numPaie}
-        />
-      )}
-    </>
-  );
-}
-*/
-
-// Bouton supprimer un paiement
-function DeleteButton({ numPaie, matricule, numBloc, numChambre, refreshPaiement }) {
-  const handleSubmit = async () => {
-    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer le paiement avec le numéro de paiement ${numPaie} ?`);
-        if (!confirmDelete) return;
-
-    try {
-      // Raha hanao anle voulez vous ... dia atao eto
-
-      const success = await supprimerPaiement(numPaie, matricule, numBloc, numChambre);
-      if (success) {
-        await refreshPaiement();
-      } else {
-        alert("Échec de la suppression.");
-      }
-    } catch (error) {
-      console.error("Erreur de suppression :", error);
-      alert("Une erreur est survenue.");
-    }
-  };
-
-  return <button onClick={handleSubmit}>Supprimer</button>;
-}
-
-/*
-
-function ModifyForm({ onSubmit, onCancel, montant, mois_paye, date_paiement, matricule, numBloc, numChambre, numPaie }) {
-  const [formData, setFormData] = useState({
-    montant: montant,
-    mois_paye: mois_paye,
-    date_paiement: date_paiement ? new Date(date_paiement).toISOString().split('T')[0] : ''
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <button type="button" onClick={onCancel} style={{ marginLeft: '10px' }}>X <br />Fermer</button>
-        <legend> Modifier </legend>
-      </div>
-      
-      <div style={{ display: 'none' }}>
-        <label>
-          Numéro de paie :
-          <input 
-            type="text" 
-            value={numPaie} 
-            disabled 
-          />
-        </label>
-      </div>
-      <div style={{ display: 'none' }}>
-        <label>
-          Matricule :
-          <input 
-            type="text" 
-            value={matricule} 
-            disabled 
-          />
-        </label>
-      </div>
-      <div style={{ display: 'none' }}>
-        <label>
-          Numéro de bloc :
-          <input 
-            type="text" 
-            value={numBloc} 
-            disabled 
-          />
-        </label>
-      </div>
-      <div style={{ display: 'none' }}>
-        <label>
-          Numéro de chambre :
-          <input 
-            type="text" 
-            value={numChambre} 
-            disabled 
-          />
-        </label>
-      </div>
-
-      <div>
-        <label>
-          Montant :
-          <input 
-            type="number" 
-            name="montant" 
-            value={formData.montant} 
-            onChange={handleChange} 
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Mois payé :
-          <input 
-            type="text" 
-            name="mois_paye" 
-            value={formData.mois_paye} 
-            onChange={handleChange} 
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Date de paiement :
-          <input 
-            type="date" 
-            name="date_paiement" 
-            value={formData.date_paiement} 
-            onChange={handleChange} 
-          />
-        </label>
-      </div>
-      <div style={{ marginTop: '10px' }}>
-        <button type="submit" style={{ marginLeft: '10px' }}>Modifier</button>
-      </div>
-    </form>
-  );
-}
-*/
-
-/*
-function ModalModify({ onClose, onSubmit, montant, mois_paye, date_paiement, matricule, numBloc, numChambre, numPaie }) {
-  return (
-    <div style={{
-      position: "fixed", top: 0, left: 0, width: "100%",
-      height: "100%", backgroundColor: "rgba(0,0,0,0.5)"
-    }}>
-      <div style={{
-        background: "#fff", margin: "5% auto", padding: 20,
-        width: "fit-content", maxWidth: "90%"
-      }}>
-        <ModifyForm 
-          onSubmit={onSubmit} 
-          onCancel={onClose} 
-          montant={montant}
-          mois_paye={mois_paye}
-          date_paiement={date_paiement}
-          matricule={matricule}
-          numBloc={numBloc}
-          numChambre={numChambre}
-          numPaie={numPaie}
-        />
-      </div>
-    </div>
-  );
-}
-*/
 
 export default ListePaiement;
