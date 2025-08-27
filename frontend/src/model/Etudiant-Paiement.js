@@ -202,8 +202,8 @@ function AddPay({ etudiant, refreshEtudiant }) {
   }; 
 
   const getCurrentMonthYear = () => {
-    const months = ["janvier", "février", "mars", "avril", "mai", "juin", 
-                   "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    const months = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", 
+                   "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
     const now = new Date();
     return `${months[now.getMonth()]} ${now.getFullYear()}`;
   };
@@ -425,74 +425,105 @@ function AddForm({ onSubmit, onCancel, initialData = {} }) {
   const [formData, setFormData] = useState({});
   const [factureData, setFactureData] = useState(null);
 
+  // Map des mois
+  const moisMap = {
+    "Janvier": 0, "Fevrier": 1, "Mars": 2,
+    "Avril": 3, "Mai": 4, "Juin": 5,
+    "Juillet": 6, "Aout": 7, "Septembre": 8,
+    "Octobre": 9, "Novembre": 10, "Decembre": 11
+  };
+
+  const moisMapAccent = [
+    "Janvier","Février","Mars","Avril","Mai","Juin",
+    "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+  ];
+
+  const moisMapSansAccent = [
+    "Janvier","Fevrier","Mars","Avril","Mai","Juin",
+    "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"
+  ];
+
+  // Fonction utilitaire
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
   // Calcul des jours de retard
   const calculRetardJours = (date) => {
+    if (!date) return 0;
     const datePaiement = new Date(date);
     const dateLimite = new Date(datePaiement.setMonth(datePaiement.getMonth() + 1));
     const aujourdhui = new Date();
-    
     const diffInMs = aujourdhui - dateLimite;
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     return diffInDays > 0 ? diffInDays : 0;
   };
 
-  const joursDeRetard = calculRetardJours(initialData.date_paiement);
-  
+  const moisSuivantAvecAccent = (moisAnnee) => {
+    if (!moisAnnee) return "";
+    const [moisStr, anneeStr] = moisAnnee.split(" ");
+    const mois = moisMap[capitalize(moisStr)];
+    const annee = parseInt(anneeStr);
+    if (mois === undefined || isNaN(annee)) return "Format invalide";
+    const date = new Date(annee, mois + 1, 1);
+    return `${moisMapAccent[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  const moisSuivantSansAccent = (moisAnnee) => {
+    if (!moisAnnee) return "";
+    const [moisStr, anneeStr] = moisAnnee.split(" ");
+    const mois = moisMap[capitalize(moisStr)];
+    const annee = parseInt(anneeStr);
+    if (mois === undefined || isNaN(annee)) return "Format invalide";
+    const date = new Date(annee, mois + 1, 1);
+    return `${moisMapSansAccent[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  // Fonction pour générer numéro de facture
+  const genererNumFacture = (matricule, num_bloc, num_chambre) => {
+    return `F-${matricule}-${num_bloc}-${num_chambre}-${Date.now()}`;
+  };
+
+  // Réinitialiser l'état
+  const resetForm = () => {
+    setFormData({});
+    setFactureData(null);
+    setPenalite(0);
+    setShowForm(true);
+  };
+
+  // Calcul des pénalités et réinitialisation à chaque changement d'initialData
   useEffect(() => {
-    const penaliteCalcul = joursDeRetard * 20;
-    setPenalite(penaliteCalcul);
-  }, [initialData.date_paiement, joursDeRetard]);
+    resetForm();
+    const joursDeRetard = calculRetardJours(initialData.date_paiement);
+    setPenalite(joursDeRetard * 20);
+  }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formData = {
+    const joursDeRetard = calculRetardJours(initialData.date_paiement);
+    const totalPenalite = joursDeRetard * 20;
+
+    const FormData = {
       matricule: initialData.matricule,
       num_bloc: initialData.num_bloc,
       num_chambre: initialData.num_chambre,
-      montant: initialData.loyer + penalite,
-      mois_paye: moisSuivant(initialData.mois_paye),
-      date_paiement: new Date().toISOString().split('T')[0],
+      montant: initialData.loyer + totalPenalite,
+      mois_paye: moisSuivantSansAccent(initialData.mois_paye),
+      date_paiement: new Date().toISOString().split("T")[0],
       loyer: initialData.loyer,
       nom_prenoms: initialData.nom_prenoms,
-      penalite: penalite,
+      penalite: totalPenalite,
       jour_retard: joursDeRetard,
       num_facture: genererNumFacture(initialData.matricule, initialData.num_bloc, initialData.num_chambre),
       design_bloc: initialData.nom_bloc
     };
-    
-    setFactureData(formData);
+
+    setFactureData(FormData);
+    setFormData(FormData);
     setShowForm(false);
-    setFormData(formData);
   };
 
-  const moisSuivant = (moisAnnee) => {
-    const moisMap = {
-      "janvier": 0, "février": 1, "mars": 2,
-      "avril": 3, "mai": 4, "juin": 5,
-      "juillet": 6, "août": 7, "septembre": 8,
-      "octobre": 9, "novembre": 10, "décembre": 11
-    };
-
-    const moisMapInverse = Object.entries(moisMap).reduce((obj, [cle, val]) => {
-      obj[val] = cle.charAt(0).toUpperCase() + cle.slice(1);
-      return obj;
-    }, {});
-
-    const [moisStr, anneeStr] = moisAnnee.toLowerCase().split(" ");
-    const mois = moisMap[moisStr];
-    const annee = parseInt(anneeStr);
-
-    if (mois === undefined || isNaN(annee)) {
-      return "Format invalide";
-    }
-
-    const date = new Date(annee, mois + 1, 1);
-    const moisSuivantNom = moisMapInverse[date.getMonth()];
-    const anneeSuivante = date.getFullYear();
-
-    return `${moisSuivantNom} ${anneeSuivante}`;
-  };
+  const joursDeRetard = calculRetardJours(initialData.date_paiement);
 
   return (
     <>
@@ -531,7 +562,7 @@ function AddForm({ onSubmit, onCancel, initialData = {} }) {
               
               <div className="form-group">
                 <label>Mois à payer</label>
-                <input type="text" value={moisSuivant(initialData.mois_paye) || ''} readOnly />
+                <input type="text" value={moisSuivantAvecAccent(initialData.mois_paye) || ''} readOnly />
               </div>
               
               <div className="form-group">
@@ -572,7 +603,7 @@ function AddForm({ onSubmit, onCancel, initialData = {} }) {
             <ModelPDF 
               formData={factureData} 
               onClose={() => {
-                setShowForm(true);
+                resetForm();
                 onSubmit(formData);
                 onCancel();
               }}
@@ -589,6 +620,7 @@ function AddForm({ onSubmit, onCancel, initialData = {} }) {
     </>
   );
 }
+
 
 // Modal pour le paiement mensuel
 function ModalAdd({ onClose, onSubmit, initialData }) {

@@ -77,6 +77,30 @@ routePaiement.get("/:matricule", async(req,res) => {
     }
 });
 
+// Existence de paiement d'un étudiant 
+routePaiement.get("/verifierPaiement/:matricule/:numBloc/:numChambre", async(req,res) => {
+    const {matricule, numBloc, numChambre} = req.params;
+    try {
+        const resultPaiementRecherche = await connexion.query("SELECT * FROM Paiement_Spec WHERE matricule = $1 AND num_bloc = $2 AND num_chambre = $3",[matricule, numBloc, numChambre]);
+        if( resultPaiementRecherche.rows.length === 0 ){
+            res.json({
+                Success : true
+            });
+        }
+        else{
+            res.json({
+                Success : false,
+            });
+        }
+    } catch (error) {
+        res.json({
+            Success : false
+        });
+        console.error("Erreur SQL :", error);
+        res.status(500).json({error : "Erreur à l'ajout d'un paiement"});
+    }
+});
+
 // Modification d'un enregistrement d'un paiement
 routePaiement.put("/modifierPaiement/:matricule/:paie/:bloc/:chambre", async(req,res) => {
     const { matricule, paie, bloc, chambre } = req.params;
