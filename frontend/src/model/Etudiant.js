@@ -597,9 +597,20 @@ function ModifyForm({ onSubmit, onCancel, initialData = {} }) {
             </div>
             
             <div className="modal-body">
-                <div className="form-steps">
-                    <div className={`step ${step === 1 ? 'active' : ''}`}>1</div>
-                    <div className={`step ${step === 2 ? 'active' : ''}`}>2</div>
+                <div className="form-progress">
+                    <div className="form-steps">
+                        <div className={`step ${step === 1 ? 'active' : ''}`}>
+                            <span className="step-number">1</span>
+                            <span className="step-label">Informations personnelles</span>
+                        </div>
+                        <div className={`step ${step === 2 ? 'active' : ''}`}>
+                            <span className="step-number">2</span>
+                            <span className="step-label">Informations académiques</span>
+                        </div>
+                    </div>
+                    <div className="progress-bar">
+                        <div className={`progress ${step === 1 ? 'half' : 'full'}`}></div>
+                    </div>
                 </div>
                 
                 {step === 1 && (
